@@ -1,3 +1,5 @@
+module TermParser (Term, parse, parseFunc, stringToTerm) where
+
 import System.Directory.Internal.Prelude (Show, Applicative, isAlpha)
 import Control.Monad.Writer.Strict (Functor)
 import Distribution.PackageDescription.Check (PackageCheck)
