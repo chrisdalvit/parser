@@ -56,7 +56,6 @@ sat p = do
     x <- item
     if p x then return x else empty 
 
-
 -- |Apply a given parser zero or multiple times
 many :: Parser a -> Parser [a]
 many p = many1 p <|> return []
@@ -66,6 +65,18 @@ many1 :: Parser a -> Parser [a]
 many1 p = do
     x <- p 
     xs <- many p
+    return (x:xs)
+
+-- |Given two parsers, sep returns a parser that parses the first parser seperated by the second parser zero or more times
+sep :: Parser a -> Parser b -> Parser [a]
+sep p1 p2 = sep1 p1 p2 <|> return []
+
+-- |Given two parsers, sep1 returns a parser that parses the first parser seperated by the second parser at least once
+sep1 :: Parser a -> Parser b -> Parser [a]
+sep1 p1 p2 = do
+    x <- p1
+    p2
+    xs <- sep p1 p2
     return (x:xs)
 
 -- |Parser for parsing one given char
