@@ -3,6 +3,7 @@ import Control.Monad.Writer.Strict (Functor)
 import Distribution.PackageDescription.Check (PackageCheck)
 import Control.Applicative (Alternative (empty))
 import GHC.Base ( Alternative(empty, (<|>)) )
+import Data.Char (isSpace)
 
 
 data Term = Func String [Term] | Var String deriving Show
@@ -37,7 +38,7 @@ instance Alternative Parser where
       ) 
 
 
--- apply a given parser to a string
+-- |Apply a given parser to a string
 parse :: Parser a -> String -> Maybe (a, String)
 parse (Parser a) = a 
 
@@ -45,11 +46,44 @@ splitString :: String -> Maybe (Char, String)
 splitString [] = Nothing
 splitString (x:xs) = Just (x,xs)
 
--- parse one character
+-- |Parse one character
 item :: Parser Char 
 item = Parser splitString
 
+-- |Parser for parsing one item if it satisfies predicate
 sat :: (Char -> Bool) -> Parser Char 
 sat p = do
     x <- item
     if p x then return x else empty 
+
+
+-- |Apply a given parser zero or multiple times
+many :: Parser a -> Parser [a]
+many p = many1 p <|> return []
+
+-- |Apply a given parser one or multiple times
+many1 :: Parser a -> Parser [a]
+many1 p = do
+    x <- p 
+    xs <- many p
+    return (x:xs)
+
+-- |Parser for parsing one given char
+char :: Char -> Parser Char 
+char c = sat (==c)
+
+-- |Parser for parsing a given string
+string :: String -> Parser String
+string [] = return [] 
+string (x:xs) = do
+    c <- char x
+    cs <- string xs
+    return (c:cs)
+
+-- |Parser for parsing a single space
+space :: Parser Char 
+space = sat isSpace
+
+-- |Parser for parsing multiple consecutive spaces
+spaces :: Parser String 
+spaces = many space
