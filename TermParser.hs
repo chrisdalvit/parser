@@ -110,17 +110,21 @@ space = sat isSpace
 spaces :: Parser String
 spaces = many space
 
+-- |Parser for parsing a single comma character
 comma :: Parser Char
 comma = sat (==',')
 
+-- |Term parser, for either parsing a function or a variable
 parseTerm :: Parser (Term String)
 parseTerm = parseFunc <|> parseVar
 
+-- |Parser for parsing a term variable, variables are assumed to be ASCII lower-case characters
 parseVar :: Parser (Term String)
 parseVar = do
     v <- sat isAsciiLower
     return (Var [v])
 
+-- |Parser for parsing a term function
 parseFunc :: Parser (Term String)
 parseFunc = do
     f <- item
@@ -129,6 +133,7 @@ parseFunc = do
     char ')'
     return (Func [f] ts)
 
+-- |Function that trys to parse a given string into a term
 stringToTerm :: String -> Maybe (Term String)
 stringToTerm s = case parse parseTerm s of
     Nothing -> Nothing
