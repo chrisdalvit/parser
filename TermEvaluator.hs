@@ -1,13 +1,13 @@
 module TermEvaluator (matchRule) where
 
-import Term ( Rule (..), Term(..))
+import Term ( Rule (..), Term(..),  Substitution(..))
 import Data.Maybe (mapMaybe)
 
-matchRule :: [Rule] -> Term -> Maybe [(String, Term)]
+matchRule :: [Rule] -> Term -> Maybe Substitution
 matchRule [] _ = Nothing 
 matchRule ((Rule lhs _):rs) t = case match [] [(lhs,t)] of
     Nothing -> matchRule rs t 
-    Just s -> return s
+    Just s -> return $ Substitution s
 
 match :: [(String, Term)] -> [(Term,Term)] -> Maybe [(String,  Term)]
 match [] [] = Nothing 
