@@ -137,6 +137,7 @@ parseFunc = do
     spaces
     return (Func [f] ts)
 
+-- |Parser for parsing termrewrite rules
 parseRule :: Parser (Rule String)
 parseRule = do
     spaces
