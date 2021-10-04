@@ -1,4 +1,4 @@
-module TermParser (Term, parse, parseFunc, stringToTerm, vars) where
+module TermParser (Term, parse, parseFunc, stringToTerm, vars, evalTerm) where
 
 import System.Directory.Internal.Prelude (Show, Applicative, isAlpha)
 import Control.Monad.Writer.Strict (Functor)
@@ -7,7 +7,7 @@ import Control.Applicative (Alternative (empty))
 import GHC.Base ( Alternative(empty, (<|>)) )
 import Data.Char (isSpace, isAsciiLower)
 
-data Term a = Func String [Term a] | Var a deriving Show 
+data Term a = Func String [Term a] | Var a deriving Show
 
 instance Functor Term where
   fmap f (Var x) = Var (f x)
@@ -16,6 +16,10 @@ instance Functor Term where
 vars :: Term a -> [a]
 vars (Var s) = [s]
 vars (Func _ args) = concatMap vars args
+
+evalTerm :: (String -> [a] -> a) -> Term a -> a
+evalTerm _ (Var a) = a
+evalTerm func (Func f args) = func f $ map (evalTerm func) args
 
 newtype Parser a = Parser (String -> Maybe (a, String))
 
