@@ -14,7 +14,7 @@ match [] [] = Nothing
 match s [] = return s
 match _ ( (Func _ _, Var _) : _) = Nothing    
 match s ( (Func f as, Func g bs) : xs )
-    | f == g = match s (xs ++ zip as bs)
+    | f == g && length as == length bs = match s (xs ++ zip as bs)
     | otherwise = Nothing 
 match s ( (Var x, Var t) : xs ) = case lookup x s of
     Nothing -> match ((x, Var t):s) xs
