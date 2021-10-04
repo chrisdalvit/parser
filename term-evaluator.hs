@@ -1,4 +1,4 @@
-import TermParser ( stringToTerm, Term )
+import TermParser ( stringToTerm, Term, stringToRule )
 import Data.Maybe ( fromMaybe )
 import Distribution.Fields (SectionArg(SecArgStr))
 
@@ -15,5 +15,5 @@ semantic _ = error "No exhaustiv semantic"
 
 main :: IO()
 main = do
-    ln <- getLine
-    print $ stringToTerm ln
+    ln <- readFile "trs.txt"
+    print $ map stringToRule $ lines ln

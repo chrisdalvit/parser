@@ -1,4 +1,4 @@
-module TermParser (Term, parse, parseFunc, stringToTerm) where
+module TermParser (Term, parse, parseFunc, stringToTerm, stringToRule) where
 
 import System.Directory.Internal.Prelude (Show, Applicative, isAlpha)
 import Control.Monad.Writer.Strict (Functor)
@@ -8,7 +8,7 @@ import GHC.Base ( Alternative(empty, (<|>)) )
 import Data.Char (isSpace, isAsciiLower)
 
 data Term a = Func String [Term a] | Var a deriving Show
-data Rule a = Rule (Term a) (Term a)
+data Rule a = Rule (Term a) (Term a) deriving Show
 
 instance Functor Term where
   fmap f (Var x) = Var (f x)
@@ -146,6 +146,14 @@ parseRule = do
     string "->"
     spaces
     Rule lhs <$> parseTerm
+
+-- |Function that trys to parse a given string into a rewriterule
+stringToRule :: String -> Maybe (Rule String)
+stringToRule s = case parse parseRule s of 
+    Nothing -> Nothing
+    Just (x, []) -> return x
+    Just (_ , x:xs) -> Nothing 
+
 
 -- |Function that trys to parse a given string into a term
 stringToTerm :: String -> Maybe (Term String)
