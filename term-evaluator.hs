@@ -1,4 +1,4 @@
-import TermParser ( stringToTerm, Term, vars, evalTerm )
+import TermParser ( stringToTerm, Term )
 import Data.Maybe ( fromMaybe )
 import Distribution.Fields (SectionArg(SecArgStr))
 
@@ -16,6 +16,4 @@ semantic _ = error "No exhaustiv semantic"
 main :: IO()
 main = do
     ln <- getLine
-    print $ do
-        term <- stringToTerm ln
-        return (evalTerm semantic $ subst <$> term)
+    print $ stringToTerm ln

@@ -1,4 +1,4 @@
-module TermParser (Term, parse, parseFunc, stringToTerm, vars, evalTerm) where
+module TermParser (Term, parse, parseFunc, stringToTerm) where
 
 import System.Directory.Internal.Prelude (Show, Applicative, isAlpha)
 import Control.Monad.Writer.Strict (Functor)
@@ -8,18 +8,11 @@ import GHC.Base ( Alternative(empty, (<|>)) )
 import Data.Char (isSpace, isAsciiLower)
 
 data Term a = Func String [Term a] | Var a deriving Show
+data Rule a = Rule (Term a) (Term a)
 
 instance Functor Term where
   fmap f (Var x) = Var (f x)
   fmap f (Func x args) = Func x (map (fmap f) args)
-
-vars :: Term a -> [a]
-vars (Var s) = [s]
-vars (Func _ args) = concatMap vars args
-
-evalTerm :: (String -> [a] -> a) -> Term a -> a
-evalTerm _ (Var a) = a
-evalTerm func (Func f args) = func f $ map (evalTerm func) args
 
 newtype Parser a = Parser (String -> Maybe (a, String))
 
@@ -125,17 +118,33 @@ parseTerm = parseFunc <|> parseVar
 -- |Parser for parsing a term variable, variables are assumed to be ASCII lower-case characters
 parseVar :: Parser (Term String)
 parseVar = do
+    spaces
     v <- sat isAsciiLower
+    spaces
     return (Var [v])
 
 -- |Parser for parsing a term function
 parseFunc :: Parser (Term String)
 parseFunc = do
+    spaces
     f <- item
+    spaces
     char '('
+    spaces
     ts <- sep parseTerm comma
+    spaces
     char ')'
+    spaces
     return (Func [f] ts)
+
+parseRule :: Parser (Rule String)
+parseRule = do
+    spaces
+    lhs <- parseFunc
+    spaces
+    string "->"
+    spaces
+    Rule lhs <$> parseTerm
 
 -- |Function that trys to parse a given string into a term
 stringToTerm :: String -> Maybe (Term String)
