@@ -1,133 +1,111 @@
-import qualified Data.Bifunctor
-import System.Directory.Internal.Prelude (Show)
-import Data.Char (isSpace, isDigit, ord)
-import Text.Parsec.Prim (token)
+module Parser (Parser, parse, item, char, string, comma, sep, sat, token) where
 
-class Monad m => MonadZero m where
-    zero :: m a
+import Control.Applicative (Alternative)
+import GHC.Base (Alternative(empty, (<|>)))
+import Data.Char (isSpace)
 
-class Monad m => MonadPlus m where
-    (++) :: m a -> m a -> m a
-
-newtype Parser a = Parser (String -> [(a, String)])
-
-parse :: Parser a -> String -> [(a, String)]
-parse (Parser a) = a
+newtype Parser a = Parser (String -> Maybe (a, String))
 
 instance Functor Parser where
-    fmap f p = Parser(map (Data.Bifunctor.first f) . parse p)
+    fmap f (Parser a) = Parser (\cs ->  case a cs of
+            Nothing -> Nothing
+            Just (a, s) -> Just (f a, s)
+        )
 
 instance Applicative Parser where
-    pure a = Parser(\cs -> [(a, cs)])
-    p1 <*> p2 = Parser(concatMap (\(g,out) -> parse (fmap g p2) out) . parse p1)
+  pure a = Parser (\cs -> Just (a, cs))
+  p1 <*> p2 = Parser (\cs -> do
+        (f, xs) <- parse p1 cs
+        (a, xs') <- parse p2 xs
+        return (f a, xs')
+    )
 
 instance Monad Parser where
-    return a = Parser (\cs -> [(a, cs)])
-    p >>= f = Parser (\cs -> concat [ parse (f a) cs' | (a, cs') <- parse p cs])
+  p >>= f = Parser (\cs -> case parse p cs of
+        Nothing -> Nothing
+        Just (a,xs) -> parse (f a) xs
+      )
 
-instance MonadZero Parser where
-    zero = Parser (const [])
+instance Alternative Parser where
+  empty = Parser $ const Nothing
+  p1 <|> p2 = Parser (\cs -> case parse p1 cs of
+        Nothing -> parse p2 cs
+        Just a -> return a
+      )
 
-instance MonadPlus Parser where
-    p1 ++ p2 = Parser (\cs -> parse p1 cs Prelude.++ parse p2 cs)
 
-safeHead :: [a] -> [a]
-safeHead [] = []
-safeHead (x:xs) = [x]
 
-(+++) :: Parser a -> Parser a -> Parser a
-p1 +++ p2 = Parser(safeHead . parse (p1 Main.++ p2))
+-- |Apply a given parser to a string
+parse :: Parser a -> String -> Maybe (a, String)
+parse (Parser a) = a
 
--- split string in singelton list with tuple with head as fst and tail as snd
-splitString :: String -> [(Char , String)]
-splitString [] = []
-splitString (x:xs) = [(x,xs)]
+splitString :: String -> Maybe (Char, String)
+splitString [] = Nothing
+splitString (x:xs) = Just (x,xs)
 
+-- |Parse one character
 item :: Parser Char
 item = Parser splitString
 
+-- |Parser for parsing one item if it satisfies predicate
 sat :: (Char -> Bool) -> Parser Char
 sat p = do
     x <- item
-    if p x then return x else zero
+    if p x then return x else empty
 
--- parse specific character
-char :: Char -> Parser Char
-char c = sat (c==)
-
-string :: String -> Parser String
-string [] = return []
-string (c:cs) = do
-    char c
-    string cs
-    return (c:cs)
-
+-- |Apply a given parser zero or multiple times
 many :: Parser a -> Parser [a]
-many p = many1 p +++ return []
+many p = many1 p <|> return []
 
+-- |Apply a given parser one or multiple times
 many1 :: Parser a -> Parser [a]
 many1 p = do
-    a <- p
-    as <- many p
-    return (a:as)
+    x <- p
+    xs <- many p
+    return (x:xs)
 
-sepby :: Parser a -> Parser b -> Parser [a]
-sepby p sep = sepby1 p sep +++ return []
+-- |Given two parsers, sep returns a parser that parses the first parser seperated by the second parser zero or more times
+sep :: Parser a -> Parser b -> Parser [a]
+sep p1 p2 = sep1 p1 p2 <|> return []
 
-sepby1 :: Parser a -> Parser b -> Parser [a]
-sepby1 p sep = do
-    a <- p
-    as <- many (do
-        sep
-        p
+-- |Given two parsers, sep1 returns a parser that parses the first parser seperated by the second parser at least once
+sep1 :: Parser a -> Parser b -> Parser [a]
+sep1 p1 p2 = do
+    x <- p1
+    xs <- many (do
+        p2
+        p1
         )
-    return (a:as)
+    return (x:xs)
 
-chainl ::Parser a -> Parser (a -> a -> a) -> a -> Parser a
-chainl p op a = (p `chainl1` op) +++ return a
+-- |Parser for parsing one given char
+char :: Char -> Parser Char
+char c = sat (==c)
 
-chainl1 :: Parser a -> Parser (a -> a -> a) -> Parser a
-p `chainl1` op = do
-    a <- p
-    rest a
-    where
-        rest a = (do
-            f <- op
-            b <- p
-            rest (f a b)) +++ return a
+-- |Parser for parsing a given string
+string :: String -> Parser String
+string [] = return []
+string (x:xs) = do
+    c <- char x
+    cs <- string xs
+    return (c:cs)
 
-space :: Parser String
-space = many $ sat isSpace
+-- |Parser for parsing a single space
+space :: Parser Char
+space = sat isSpace
 
+-- |Parser for parsing multiple consecutive spaces
+spaces :: Parser String
+spaces = many space
+
+-- |Parser for parsing a single comma character
+comma :: Parser Char
+comma = sat (==',')
+
+-- |Parser that removes leading and trailing spaces
 token :: Parser a -> Parser a
-token p = do
-    a <- p
-    space
-    return a
-
-symb :: String -> Parser String
-symb = Main.token . string
-
-apply :: Parser a -> String -> [(a,String)]
-apply p = parse (do
-    space
-    p
-    )
-
-expr  :: Parser Int
-expr   = term   `chainl1` addop
-
-addop :: Parser (Int -> Int -> Int)
-addop = do {symb "+"; return (+)} +++ do {symb "-"; return (-)}
-
-mulop :: Parser (Int -> Int -> Int)
-mulop = do {symb "*"; return (*)} +++ do {symb "/"; return div}
-
-term :: Parser Int
-term   = factor `chainl1` mulop
-
-factor :: Parser Int
-factor = digit +++ do {symb "("; n <- expr; symb ")"; return n}
-
-digit :: Parser Int
-digit  = do {x <- Main.token (sat isDigit); return (ord x - ord '0')}
+token p = do 
+    spaces
+    x <- p
+    spaces
+    return x
