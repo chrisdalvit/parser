@@ -1,4 +1,4 @@
-module TermParser (Term, parse, parseFunc, stringToTerm) where
+module TermParser (Term, parse, parseFunc, stringToTerm, vars) where
 
 import System.Directory.Internal.Prelude (Show, Applicative, isAlpha)
 import Control.Monad.Writer.Strict (Functor)
@@ -7,8 +7,15 @@ import Control.Applicative (Alternative (empty))
 import GHC.Base ( Alternative(empty, (<|>)) )
 import Data.Char (isSpace, isAsciiLower)
 
+data Term a = Func String [Term a] | Var a deriving Show 
 
-data Term = Func String [Term] | Var String deriving Show 
+instance Functor Term where
+  fmap f (Var x) = Var (f x)
+  fmap f (Func x args) = Func x (map (fmap f) args)
+
+vars :: Term a -> [a]
+vars (Var s) = [s]
+vars (Func _ args) = concatMap vars args
 
 newtype Parser a = Parser (String -> Maybe (a, String))
 
@@ -106,15 +113,15 @@ spaces = many space
 comma :: Parser Char
 comma = sat (==',')
 
-parseTerm :: Parser Term
+parseTerm :: Parser (Term String)
 parseTerm = parseFunc <|> parseVar
 
-parseVar :: Parser Term
+parseVar :: Parser (Term String)
 parseVar = do
     v <- sat isAsciiLower
     return (Var [v])
 
-parseFunc :: Parser Term
+parseFunc :: Parser (Term String)
 parseFunc = do
     f <- item
     char '('
@@ -122,7 +129,7 @@ parseFunc = do
     char ')'
     return (Func [f] ts)
 
-stringToTerm :: String -> Maybe Term
+stringToTerm :: String -> Maybe (Term String)
 stringToTerm s = case parse parseTerm s of
     Nothing -> Nothing
     Just(x, c:cs) -> Nothing
