@@ -1,4 +1,4 @@
-module TermParser (Term, Rule, stringToRule, stringToTerm) where
+module TermParser (Term, Rule, parseTRS, stringToTerm) where
 
 import Parser (Parser, parse, char, item , string, comma, sep, sat, token)
 import Term ( Rule(..), Term(..) )
@@ -48,5 +48,10 @@ stringToTerm s = case parse parseTerm s of
     Just(x, c:cs) -> Nothing
     Just(x, []) -> return x
 
-parseRules :: String -> [Rule]
-parseRules = mapMaybe stringToRule . lines
+-- |Funtcion that takes a list of strings and returns a list of rules if all strings can be parsed into rules
+parseTRS :: [String] -> Maybe [Rule]
+parseTRS [] = return []
+parseTRS (x:xs) = do
+    r <- stringToRule x
+    rs <- parseTRS xs
+    return (r:rs)
