@@ -1,5 +1,5 @@
 import TermParser ( stringToRule, stringToTerm )
-import TermEvaluator (matchRule, singleEvalStep)
+import TermEvaluator (matchRule, evalTerm)
 import Term (Term, Substitution)
 
 import Data.Maybe (mapMaybe)
@@ -11,15 +11,15 @@ splitOn s l = case break (==s) l of
     (pre, []) -> [pre]
     (xs, a:as) -> xs : splitOn s as
 
-evalTerm :: [[String]] -> Maybe Term 
-evalTerm [rs, [t]] = do
+evalFile :: [[String]] -> Maybe Term 
+evalFile [rs, [t]] = do
     term <- stringToTerm t
-    singleEvalStep (mapMaybe stringToRule rs) term
-evalTerm _ = Nothing
+    return $ evalTerm (mapMaybe stringToRule rs) term
+evalFile _ = Nothing
 
 main :: IO()
 main = do
     file <- readFile "trs.txt"
-    case evalTerm $ splitOn "" $ lines file of 
+    case evalFile $ splitOn "" $ lines file of 
         Nothing -> print ""
         Just sub -> print sub

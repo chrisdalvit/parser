@@ -1,4 +1,4 @@
-module TermEvaluator (matchRule, singleEvalStep) where
+module TermEvaluator (matchRule, evalTerm) where
 
 import Term ( Rule (..), Term(..),  Substitution(..))
 import Data.Maybe (mapMaybe, fromMaybe)
@@ -9,11 +9,25 @@ applySubst s@(Substitution sub) f@(Func fsymb args) = Func fsymb args'
     where
         args' = map (applySubst s) args
 
-singleEvalStep :: [Rule] -> Term -> Maybe Term
-singleEvalStep [] t = return t
-singleEvalStep rs t = do
-    (Rule rhs lhs, sub) <- matchRule rs t
-    return $ applySubst sub lhs
+rootStep :: [Rule] -> Term -> Maybe Term
+rootStep rs (Var x) = return $ Var x
+rootStep rs t@(Func f ts) = case matchRule rs t of
+    Just (Rule _ rhs, sub) -> return $ applySubst sub rhs
+    Nothing -> return t
+
+topDownStep :: [Rule] -> Term -> Term
+topDownStep rs (Var x) = Var x
+topDownStep rs t@(Func f ts) = case rootStep rs t of
+    Just (Func f ts') -> Func f (map (topDownStep rs) ts')
+    Just (Var x) -> Var x
+    Nothing -> Func f (map (topDownStep rs) ts)
+
+evalTerm :: [Rule] -> Term -> Term
+evalTerm rs t
+    | t' == t = t
+    | otherwise = topDownStep rs t'
+    where
+        t' = topDownStep rs t
 
 matchRule :: [Rule] -> Term -> Maybe (Rule, Substitution)
 matchRule [] _ = Nothing
