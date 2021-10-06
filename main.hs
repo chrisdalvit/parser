@@ -1,6 +1,7 @@
 import TermParser ( stringToTerm, parseTRS )
 import TermEvaluator  (evalTerm)
 import Term (Term, Substitution)
+import CommandParser (stringToCommand)
 
 import Data.Maybe (mapMaybe)
 
@@ -20,7 +21,14 @@ evalFile _ = Nothing
 
 main :: IO()
 main = do
-    file <- readFile "trs.txt"
+    inp <- getLine 
+    case stringToCommand inp of 
+        Nothing -> print "Error"
+        Just cmd -> print cmd
+    main
+
+    {--file <- readFile "trs.txt"
     case evalFile $ splitOn "" $ lines file of 
         Nothing -> print ""
         Just sub -> print sub
+    --}

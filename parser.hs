@@ -1,8 +1,8 @@
-module Parser (Parser, parse, item, char, string, comma, sep, sat, token, space, many1, spaces, items) where
+module Parser (Parser, parse, item, char, string, comma, sep, sat, token, space, many1, many, spaces, items) where
 
 import Control.Applicative (Alternative)
 import GHC.Base (Alternative(empty, (<|>)))
-import Data.Char (isSpace)
+import Data.Char (isSpace, isAlphaNum)
 
 newtype Parser a = Parser (String -> Maybe (a, String))
 
@@ -50,10 +50,9 @@ item = Parser splitString
 -- |Parse characters to first space
 items :: Parser String
 items = do
-    c <- item 
-    if isSpace c then return [c] else do
-        cs <- items
-        return (c:cs)
+    c <- sat isAlphaNum
+    cs <- items
+    return (c:cs)
 
 -- |Parser for parsing one item if it satisfies predicate
 sat :: (Char -> Bool) -> Parser Char
