@@ -1,4 +1,4 @@
-module Parser (Parser, parse, item, char, string, comma, sep, sat, token, space, many1, many, spaces, items) where
+module Parser (Parser, parse, item, char, string, comma, sep, sat, token, space, many1, many, spaces, items, argWords) where
 
 import Control.Applicative (Alternative)
 import GHC.Base (Alternative(empty, (<|>)))
@@ -116,3 +116,6 @@ token p = do
     x <- p
     spaces
     return x
+
+argWords :: Parser [String]
+argWords = Parser(\cs -> Just (words cs, ""))

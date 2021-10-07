@@ -15,7 +15,7 @@ printArgs [x, y] = show x ++ "," ++ show y
 printArgs (x:xs) = show x ++ "," ++ printArgs xs
 
 instance Show Rule where
-    show (Rule rhs lhs) = show rhs ++ " = " ++ show lhs
+    show (Rule rhs lhs) = show rhs ++ " -> " ++ show lhs
 
 instance Show Substitution where
     show (Substitution []) = ""
