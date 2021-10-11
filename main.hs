@@ -23,7 +23,9 @@ evalCommand (Command (CommandSymbol "term") (Args xs)) = do
     print $ map stringToTerm xs
 evalCommand (Command (CommandSymbol "trs") _ ) = do
     trs <- readTRS
-    print trs
+    case trs of 
+        [] -> print "Non-valid TRS"
+        _ -> print trs
 evalCommand _ = print "Non-valid command"
 
 readLines :: IO [String]
@@ -46,6 +48,6 @@ main :: IO()
 main = do
     inp <- getLine
     case stringToCommand inp of
-        Nothing -> print "Error"
+        Nothing -> putStr ""
         Just cmd -> evalCommand cmd
     main
