@@ -1,10 +1,12 @@
-module TermParser (Term, Rule, parseTRS, stringToTerm) where
+module TermParser (Term, Rule, stringsToTRS, stringToTerm) where
 
 import Parser (Parser, parse, char, item , string, comma, sep, sat, token)
-import Term ( Rule(..), Term(..) )
+import Term ( Rule(..), Term(..), vars, subset, funcArity)
 import Control.Applicative (Alternative ((<|>)))
 import Data.Char (isAsciiLower)
 import Data.Maybe (mapMaybe)
+import Data.String (String)
+import Control.Monad.STM (check)
 
 
 -- |Term parser, for either parsing a function or a variable
@@ -31,15 +33,15 @@ parseRule :: Parser Rule
 parseRule = do
     lhs <- token parseFunc
     token $ string "->"
-    Rule lhs <$> parseTerm
+    rhs <- token parseTerm
+    return $ Rule lhs rhs
 
 -- |Function that trys to parse a given string into a rewriterule
 stringToRule :: String -> Maybe Rule
-stringToRule s = case parse parseRule s of 
+stringToRule s = case parse parseRule s of
     Nothing -> Nothing
-    Just (x, []) -> return x
-    Just (_ , x:xs) -> Nothing 
-
+    Just (Rule lhs rhs, []) -> if subset (vars rhs) (vars lhs) then return $ Rule lhs rhs else Nothing
+    Just (_ , x:xs) -> Nothing
 
 -- |Function that trys to parse a given string into a term
 stringToTerm :: String -> Maybe Term
@@ -55,3 +57,21 @@ parseTRS (x:xs) = do
     r <- stringToRule x
     rs <- parseTRS xs
     return (r:rs)
+
+stringsToTRS :: [String] -> Maybe [Rule]
+stringsToTRS l = case parseTRS l of
+    Nothing -> Nothing
+    Just rs -> if validTRS rs then return rs else Nothing
+
+validTRS :: [Rule] -> Bool
+validTRS [] = True
+validTRS rs = checkArity arities
+    where
+        arities = concatMap (\(Rule l r) -> funcArity l ++ funcArity r) rs
+
+checkArity :: [(String, Int)] -> Bool
+checkArity [] = True
+checkArity ((f,a): xs) = case lookup f xs of
+    Nothing -> checkArity xs
+    Just a' -> a == a' && checkArity xs
+    

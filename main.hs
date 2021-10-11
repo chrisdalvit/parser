@@ -1,4 +1,4 @@
-import TermParser ( stringToTerm, parseTRS )
+import TermParser ( stringToTerm, stringsToTRS )
 import TermEvaluator  (evalTerm)
 import Term (Term, Substitution, Rule)
 
@@ -14,7 +14,7 @@ splitOn s l = case break (==s) l of
 evalFile :: [[String]] -> Maybe Term
 evalFile [rs, [t]] = do
     term <- stringToTerm t
-    trs <- parseTRS rs
+    trs <- stringsToTRS rs
     return $ evalTerm trs term
 evalFile _ = Nothing
 
@@ -26,14 +26,21 @@ evalCommand (Command (CommandSymbol "trs") _ ) = do
     print trs
 evalCommand _ = print "Non-valid command"
 
+readLines :: IO [String]
+readLines = do
+    l <- getLine 
+    case l of 
+        [] -> return []
+        _ -> do 
+            ls <- readLines
+            return (l:ls)
+
 readTRS :: IO [Rule]
 readTRS = do
-    line <- getLine
-    case parseTRS [line] of
+    lines <- readLines
+    case stringsToTRS lines of
         Nothing -> return []
-        Just trs -> do
-            trs' <- readTRS
-            return $ trs ++ trs'
+        Just trs -> return trs
 
 main :: IO()
 main = do

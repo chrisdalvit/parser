@@ -1,4 +1,5 @@
-module Term (Term(Func, Var), Rule(Rule), Substitution(..)) where
+module Term (Term(Func, Var), Rule(Rule), Substitution(..), vars, subset, funcArity) where
+import Data.Tree (Tree(subForest))
 
 data Term = Func String [Term] | Var String deriving Eq
 data Rule = Rule Term Term
@@ -24,3 +25,11 @@ instance Show Substitution where
 vars :: Term -> [String]
 vars (Var a) = [a]
 vars (Func _ ts) = concatMap vars ts
+
+funcArity :: Term -> [(String, Int)]
+funcArity (Var x) = []
+funcArity (Func f ts) = (f, length ts) : concatMap funcArity ts 
+
+subset :: [String] -> [String] -> Bool
+subset [] _ = True 
+subset (x:xs) l = elem x l && subset xs l
