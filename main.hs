@@ -26,6 +26,9 @@ evalCommand (Command (CommandSymbol "trs") _ ) = do
     case trs of 
         [] -> print "Non-valid TRS"
         _ -> print trs
+evalCommand (Command (CommandSymbol "file") (Args [fn])) = do
+    file <- readFile fn
+    print $ evalFile (splitOn "" (lines file))
 evalCommand _ = print "Non-valid command"
 
 readLines :: IO [String]
