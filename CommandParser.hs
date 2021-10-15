@@ -1,6 +1,6 @@
-module CommandParser (Command(..), CommandSymbol(..), Args(..), stringToCommand) where
+module CommandParser (Command(..), CommandSymbol(..), Args(..), stringToCommand, command) where
 
-import Parser (Parser(..), char, string, sep, token, many1, item, space, spaces, parse, items, many, sat, argWords)
+import Parser (Parser(..), char, string, sep, token, many1, item, space, spaces, parse, items, many, sat, argWords, split)
 import GHC.Unicode (isAlphaNum, isPrint)
 
 newtype CommandSymbol = CommandSymbol String deriving Show
@@ -9,8 +9,9 @@ data Command = Command CommandSymbol Args deriving Show
 
 commandSymb :: Parser CommandSymbol
 commandSymb = do
+    spaces
     char ':'
-    sym <- token $ many1 (sat isAlphaNum)
+    (sym, _) <- split ' '
     return $ CommandSymbol sym
 
 args :: Parser Args

@@ -1,4 +1,4 @@
-module Parser (Parser, parse, item, char, string, comma, sep, sat, token, space, many1, many, spaces, items, argWords) where
+module Parser (Parser, parse, item, char, string, comma, sep, sat, token, space, many1, many, spaces, items, argWords, split, parseUntil) where
 
 import Control.Applicative (Alternative)
 import GHC.Base (Alternative(empty, (<|>)))
@@ -47,7 +47,7 @@ splitString (x:xs) = Just (x,xs)
 item :: Parser Char
 item = Parser splitString
 
--- |Parse characters to first space
+-- |Parse characters to first non alpha-numeric character
 items :: Parser String
 items = do
     c <- sat isAlphaNum
@@ -111,11 +111,28 @@ comma = sat (==',')
 
 -- |Parser that removes leading and trailing spaces
 token :: Parser a -> Parser a
-token p = do 
+token p = do
     spaces
     x <- p
     spaces
     return x
+
+parseUntil :: Char -> Parser String
+parseUntil c = Parser(Just . span (/=c))
+
+rest :: Parser String
+rest = Parser saveHead
+
+saveHead :: String -> Maybe (String, String)
+saveHead [] = Just ([], [])
+saveHead (x:xs) = Just ([x], xs)
+
+split :: Char -> Parser (String, String)
+split c = do
+    h <- parseUntil c
+    char c
+    r <- rest 
+    return (h,r)
 
 argWords :: Parser [String]
 argWords = Parser(\cs -> Just (words cs, ""))
