@@ -21,5 +21,3 @@ parseCommand = do
 
 parseInput :: Parser Input
 parseInput = parseExpression <|> parseCommand
-
-p = parse items "x"
