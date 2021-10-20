@@ -36,7 +36,6 @@ matchRule (r@(Rule lhs _):rs) t = case match [] [(lhs,t)] of
     Just s -> return (r, Substitution s)
 
 match :: [(String, Term)] -> [(Term,Term)] -> Maybe [(String,  Term)]
-match [] [] = Nothing
 match s [] = return s
 match _ ( (Func _ _, Var _) : _) = Nothing
 match s ( (Func f as, Func g bs) : xs )
