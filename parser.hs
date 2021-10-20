@@ -121,11 +121,7 @@ parseUntil :: Char -> Parser String
 parseUntil c = Parser(Just . span (/=c))
 
 rest :: Parser String
-rest = Parser saveHead
-
-saveHead :: String -> Maybe (String, String)
-saveHead [] = Just ([], [])
-saveHead (x:xs) = Just ([x], xs)
+rest = Parser (\cs -> Just(cs, []))
 
 split :: Char -> Parser (String, String)
 split c = do
