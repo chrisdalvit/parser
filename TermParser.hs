@@ -1,6 +1,6 @@
 module TermParser (Term, Rule, stringsToTRS, stringToTerm) where
 
-import Parser (Parser, parse, char, item , string, comma, sep, sat, token)
+import Parser (Parser, parse, char, item , string, comma, sep, sat, token, parseUntil, spaces)
 import Term ( Rule(..), Term(..), vars, subset, funcArity)
 import Control.Applicative (Alternative ((<|>)))
 import Data.Char (isAsciiLower)
@@ -22,11 +22,11 @@ parseVar = do
 -- |Parser for parsing a term function
 parseFunc :: Parser Term
 parseFunc = do
-    f <- token item
-    token $ char '('
-    ts <- token $ sep parseTerm comma
-    token $ char ')'
-    return (Func [f] ts)
+    f <- parseUntil '('
+    char '('
+    ts <- sep (token parseTerm) comma
+    char ')'
+    return (Func f ts)
 
 -- |Parser for parsing termrewrite rules
 parseRule :: Parser Rule
