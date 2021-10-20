@@ -7,21 +7,12 @@ newtype CommandSymbol = CommandSymbol String deriving Show
 newtype Args = Args [String] deriving Show
 data Command = Command CommandSymbol Args deriving Show
 
-commandSymb :: Parser CommandSymbol
-commandSymb = do
-    spaces
-    char ':'
-    (sym, _) <- split ' '
-    return $ CommandSymbol sym
-
-args :: Parser Args
-args = do
-    Args <$> argWords
-
 command :: Parser Command
 command = do
-    cmd <- commandSymb
-    Command cmd <$> args
+    spaces
+    char ':'
+    (sym, args) <- split ' '
+    return $ Command (CommandSymbol sym) (Args (words args))
 
 stringToCommand :: String -> Maybe Command
 stringToCommand s = case parse command s of
