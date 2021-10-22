@@ -1,13 +1,11 @@
 module TermParser (Term, Rule, stringsToTRS, stringToTerm) where
 
-import Parser (Parser, parse, char, item , string, comma, sep, sat, token, parseUntil, spaces)
+import Parser (Parser, parse, char, item, items, string, comma, sep, sat, token, parseUntil, spaces, many1)
 import Term ( Rule(..), Term(..), vars, subset, funcArity)
 import Control.Applicative (Alternative ((<|>)))
-import Data.Char (isAsciiLower)
+import Data.Char (isAsciiLower, isAlphaNum)
 import Data.Maybe (mapMaybe)
 import Data.String (String)
-import Control.Monad.STM (check)
-
 
 -- |Term parser, for either parsing a function or a variable
 parseTerm :: Parser Term
@@ -20,9 +18,10 @@ parseVar = do
     return (Var [v])
 
 -- |Parser for parsing a term function
+-- TODO: Implement clean function parser
 parseFunc :: Parser Term
 parseFunc = do
-    f <- parseUntil '('
+    f <- many1 (sat isAlphaNum)
     char '('
     ts <- sep (token parseTerm) comma
     char ')'
