@@ -15,19 +15,19 @@ rootStep rs t@(Func f ts) = case matchRule rs t of
     Just (Rule _ rhs, sub) -> return $ applySubst sub rhs
     Nothing -> return t
 
-topDownStep :: [Rule] -> Term -> Term
-topDownStep rs (Var x) = Var x
-topDownStep rs t@(Func f ts) = case rootStep rs t of
-    Just (Func f ts') -> Func f (map (topDownStep rs) ts')
+singleStep :: [Rule] -> Term -> Term
+singleStep rs (Var x) = Var x
+singleStep rs t@(Func f ts) = case rootStep rs t of
+    Just (Func f ts') -> Func f (map (singleStep rs) ts')
     Just (Var x) -> Var x
-    Nothing -> Func f (map (topDownStep rs) ts)
+    Nothing -> Func f (map (singleStep rs) ts)
 
 evalTerm :: [Rule] -> Term -> Term
 evalTerm rs t
     | t' == t = t
-    | otherwise = topDownStep rs t'
+    | otherwise = evalTerm rs t'
     where
-        t' = topDownStep rs t
+        t' = singleStep rs t
 
 matchRule :: [Rule] -> Term -> Maybe (Rule, Substitution)
 matchRule [] _ = Nothing
