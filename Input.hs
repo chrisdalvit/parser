@@ -21,3 +21,9 @@ parseCommand = do
 
 parseInput :: Parser Input
 parseInput = parseExpression <|> parseCommand
+
+stringToAssignment :: String -> Maybe Expression
+stringToAssignment s = case parse parseAssignment s of 
+    Nothing -> Nothing 
+    Just (a, []) -> return a
+    Just (a, _) -> Nothing
