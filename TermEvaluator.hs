@@ -1,7 +1,7 @@
 module TermEvaluator (matchRule, evalTerm) where
 
 import Term ( Rule (..), Term(..),  Substitution(..))
-import Data.Maybe (mapMaybe, fromMaybe)
+import Data.Maybe (fromMaybe)
 
 applySubst :: Substitution -> Term -> Term
 applySubst (Substitution sub) v@(Var x) = fromMaybe v $ lookup x sub
