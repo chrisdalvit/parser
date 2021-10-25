@@ -1,5 +1,4 @@
 module Term (Term(Func, Var), Rule(Rule), Substitution(..), validRule, validTRS) where
-import Data.Tree (Tree(subForest))
 
 data Term = Func String [Term] | Var String deriving Eq
 data Rule = Rule Term Term deriving Eq
