@@ -8,9 +8,7 @@ import Input (stringToAssignment, addAssignment, Assignment(..), Assignable(..))
 
 evalCommand :: [Assignment] -> Command -> IO [Assignment]
 evalCommand as (Command (CommandSymbol "term") args) = evalTermCommand as args
-evalCommand as (Command (CommandSymbol "trs") _ ) = do 
-    evalTRSCommand
-    return as
+evalCommand as (Command (CommandSymbol "trs") args ) = evalTRSCommand as args
 evalCommand as (Command (CommandSymbol "file") args) = do
     evalFileCommand args
     return as
@@ -50,12 +48,22 @@ evalTermCommand as _ = do
     print "Error: not enough arguments"
     return as
 
-evalTRSCommand :: IO()
-evalTRSCommand = do
+evalTRSCommand :: [Assignment] -> Args -> IO [Assignment]
+evalTRSCommand as (Args []) = do
     trs <- readTRS
     case trs of
         [] -> print "Non-valid TRS"
-        _ -> print trs
+        _ -> print $ "TRS: " ++ show trs
+    return as
+evalTRSCommand as (Args [n]) = do
+    trs <- readTRS
+    case trs of
+        [] -> print "Non-valid TRS"
+        _ -> print $ "TRS: " ++ show trs
+    return $ addAssignment (Assignment n (TRS trs)) as
+evalTRSCommand as _ = do
+    print "Error: wrong number of arguments"
+    return as
 
 evalFileCommand :: Args -> IO()
 evalFileCommand (Args [fn]) = do
@@ -87,7 +95,7 @@ readLines :: IO [String]
 readLines = do
     l <- getLine
     case l of
-        [] -> return []
+        "" -> return []
         _ -> do
             ls <- readLines
             return (l:ls)

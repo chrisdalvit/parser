@@ -14,7 +14,7 @@ instance Eq Assignment where
 
 instance Show Assignable where
     show (Term t) = show t
-    show (TRS rs) = unwords $ map show rs
+    show (TRS rs) = show rs
 
 instance Show Assignment where
     show (Assignment x y) = x ++ "=" ++ show y 
