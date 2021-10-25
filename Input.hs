@@ -6,15 +6,11 @@ import TermParser (parseTerm)
 import Data.Char (isAlphaNum)
 import Data.List (delete)
 
-data Assignable = Term Term | TRS [Rule] deriving Eq
+data Assignable = Term Term | TRS [Rule] deriving (Eq, Show)
 data Assignment = Assignment String Assignable
 
 instance Eq Assignment where
     (Assignment r _) == (Assignment r' _) = r == r'
-
-instance Show Assignable where
-    show (Term t) = show t
-    show (TRS rs) = show rs
 
 instance Show Assignment where
     show (Assignment x y) = x ++ "=" ++ show y 
