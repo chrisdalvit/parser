@@ -6,8 +6,12 @@ import TermParser (parseTerm)
 import Data.Char (isAlphaNum)
 import Data.List (delete)
 
-data Assignable = Term Term | TRS [Rule] deriving (Eq, Show)
+data Assignable = Term Term | TRS [Rule] deriving Eq
 data Assignment = Assignment String Assignable
+
+instance Show Assignable where
+    show (Term t) = show "Term: " ++ show t
+    show (TRS trs) = "TRS: [" ++ concatMap (\r -> "\n\t" ++ show r ++ ", ") trs  ++ "\n]"
 
 instance Eq Assignment where
     (Assignment r _) == (Assignment r' _) = r == r'
