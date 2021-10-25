@@ -4,31 +4,43 @@ import Term (Term, Substitution, Rule)
 import TermParser ( stringToTerm, stringsToTRS )
 import TermEvaluator  (evalTerm)
 import CommandParser(Command(..), CommandSymbol (CommandSymbol), Args (Args), stringToCommand)
-import Input (stringToAssignment, Expression (..))
+import Input (stringToAssignment, Assignment(..), Assignable(..))
+import Data.List (delete)
 
-evalCommand :: [(String, String)] -> Command -> (IO (), [(String, String)])
-evalCommand as (Command (CommandSymbol "term") args) = (evalTermCommand args, as)
-evalCommand as (Command (CommandSymbol "trs") _ ) = (evalTRSCommand, as) 
+evalCommand :: [Assignment] -> Command -> (IO (), [Assignment])
+evalCommand as (Command (CommandSymbol "term") args) = evalTermCommand as args
+evalCommand as (Command (CommandSymbol "trs") _ ) = (evalTRSCommand, as)
 evalCommand as (Command (CommandSymbol "file") args) = (evalFileCommand args, as)
 evalCommand as (Command (CommandSymbol "=") args) = evalAssignmentCommand as args
+evalCommand as (Command (CommandSymbol "p") args) = (print as, as)
 evalCommand as _ = (print "Non-valid command", as)
 
-evalAssignmentCommand :: [(String, String)] -> Args -> (IO(), [(String, String)])
+
+addAssignment :: Assignment -> [Assignment] -> [Assignment]
+addAssignment a as
+    | a `elem` as = a:as'
+    | otherwise = a:as
+    where
+        as' = delete a as
+
+evalAssignmentCommand :: [Assignment] -> Args -> (IO(), [Assignment])
 evalAssignmentCommand as (Args [x]) = do
     case stringToAssignment x of
         Nothing -> (print "Error when parsing assignment", as)
-        Just a@(Assignment lhs rhs) -> (print a, (lhs, rhs):as)
+        Just a -> (print a, addAssignment a as)
 evalAssignmentCommand as _ = (print "Wrong number of arguments", as)
 
-evalTermCommand :: Args -> IO()
-evalTermCommand (Args [x]) = do
-    print $ map stringToTerm [x]
-evalTermCommand _ = print "Error: not enough arguments"
+evalTermCommand :: [Assignment] -> Args -> (IO(), [Assignment])
+evalTermCommand as (Args [x]) = (print $ stringToTerm x, as)
+evalTermCommand as (Args [n, t]) = case stringToTerm t of 
+    Nothing -> (print "No valid term", as)
+    Just t -> (print t, addAssignment (Assignment n (Term t)) as)
+evalTermCommand as _ = (print "Error: not enough arguments", as)
 
 evalTRSCommand :: IO()
 evalTRSCommand = do
     trs <- readTRS
-    case trs of 
+    case trs of
         [] -> print "Non-valid TRS"
         _ -> print trs
 
@@ -60,9 +72,9 @@ splitOn s l = case break (==s) l of
 
 readLines :: IO [String]
 readLines = do
-    l <- getLine 
-    case l of 
+    l <- getLine
+    case l of
         [] -> return []
-        _ -> do 
+        _ -> do
             ls <- readLines
             return (l:ls)

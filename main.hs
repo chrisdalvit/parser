@@ -1,17 +1,18 @@
 import Data.Maybe (mapMaybe)
 import CommandEvaluator (evalCommand)
 import CommandParser ( stringToCommand )
+import Input ( Assignment )
 
 main :: IO()
 main = evalLoop []
 
-evalLoop :: [(String, String)] -> IO()
+evalLoop :: [Assignment] -> IO()
 evalLoop as = do
     inp <- getLine
     as' <- evalInput inp as
     evalLoop as'
 
-evalInput :: String -> [(String, String)] -> IO[(String, String)]
+evalInput :: String -> [Assignment] -> IO[Assignment]
 evalInput inp as =
     case stringToCommand inp of
         Nothing -> return as

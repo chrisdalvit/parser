@@ -2,7 +2,7 @@ module Term (Term(Func, Var), Rule(Rule), Substitution(..), vars, subset, funcAr
 import Data.Tree (Tree(subForest))
 
 data Term = Func String [Term] | Var String deriving Eq
-data Rule = Rule Term Term
+data Rule = Rule Term Term deriving Eq
 newtype Substitution = Substitution [(String, Term)]
 
 instance Show Term where

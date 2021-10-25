@@ -1,4 +1,4 @@
-module TermParser (Term, Rule, stringsToTRS, stringToTerm) where
+module TermParser (Term, Rule, stringsToTRS, stringToTerm, parseTerm) where
 
 import Parser (Parser, parse, char, item, items, string, comma, sep, sat, token, parseUntil, spaces, many1)
 import Term ( Rule(..), Term(..), vars, subset, funcArity)
