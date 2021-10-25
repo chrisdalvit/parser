@@ -9,7 +9,8 @@ import Input (stringToAssignment, addAssignment, Assignment(..), Assignable(..))
 evalCommand :: [Assignment] -> Command -> IO [Assignment]
 evalCommand as (Command (CommandSymbol "term") args) = evalTermCommand as args
 evalCommand as (Command (CommandSymbol "trs") args ) = evalTRSCommand as args
-evalCommand as (Command (CommandSymbol "file") args) = do
+evalCommand as (Command (CommandSymbol "trsfile") args ) = readTRSFile as args
+evalCommand as (Command (CommandSymbol "evalfile") args) = do
     evalFileCommand args
     return as
 evalCommand as (Command (CommandSymbol "=") args) = evalAssignmentCommand as args
@@ -18,6 +19,23 @@ evalCommand as (Command (CommandSymbol "p") args) = do
     return as
 evalCommand as _ = do
     print "Non-valid command"
+    return as
+
+readTRSFile :: [Assignment] -> Args -> IO [Assignment]
+readTRSFile as (Args [f]) = do
+    file <- readFile f
+    print $ stringsToTRS $ lines file
+    return as
+readTRSFile as (Args [f, n]) = do
+    file <- readFile f
+    case stringsToTRS $ lines file of
+        Nothing -> do
+            print "Error: incorrect TRS"
+            return as 
+        Just trs -> do
+            return $ addAssignment (Assignment n (TRS trs)) as
+readTRSFile as _ = do
+    print "Error: wrong number of arguments"
     return as
 
 evalAssignmentCommand :: [Assignment] -> Args -> IO [Assignment]
