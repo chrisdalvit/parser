@@ -1,6 +1,6 @@
-module CommandParser (Command(..), CommandSymbol(..), Args(..), stringToCommand, command) where
+module CommandParser (Command(..), CommandSymbol(..), Args(..), stringToCommand) where
 
-import Parser (Parser(..), char, string, sep, token, many1, item, space, spaces, parse, items, many, sat, argWords, split)
+import Parser (Parser(..), char, string, sep, token, many1, item, space, spaces, parse, many, sat, split)
 import GHC.Unicode (isAlphaNum, isPrint)
 
 newtype CommandSymbol = CommandSymbol String deriving Show

@@ -1,8 +1,6 @@
 module Input where
 
-import CommandParser (Command(..), command )
-import Parser(Parser(..), char, string, sep, token, many1, item, space, spaces, parse, items, many, sat, argWords, parseUntil, split)
-import Control.Applicative ((<|>))
+import Parser(Parser, char, many1, parse, sat, token)
 import Term (Term, Rule)
 import TermParser (parseTerm)
 import Data.Char (isAlphaNum)
@@ -22,12 +20,10 @@ instance Show Assignment where
 
 parseAssignment :: Parser Assignment
 parseAssignment = do
-    spaces
-    c <- many1 (sat isAlphaNum)
-    spaces
+    c <- token $ many1 (sat isAlphaNum)
     char '='
-    spaces
-    Assignment c . Term <$> parseTerm
+    term <- token parseTerm
+    return $ Assignment c (Term term)
 
 stringToAssignment :: String -> Maybe Assignment
 stringToAssignment s = case parse parseAssignment s of

@@ -1,4 +1,4 @@
-module Parser (Parser, parse, item, char, string, comma, sep, sat, token, space, many1, many, spaces, items, argWords, split, parseUntil) where
+module Parser (Parser, parse, item, char, string, comma, sep, sat, token, space, many1, many, spaces, split) where
 
 import Control.Applicative (Alternative)
 import GHC.Base (Alternative(empty, (<|>)))
@@ -46,13 +46,6 @@ splitString (x:xs) = Just (x,xs)
 -- |Parse one character
 item :: Parser Char
 item = Parser splitString
-
--- |Parse characters to first non alpha-numeric character
-items :: Parser String
-items = do
-    c <- sat isAlphaNum
-    cs <- items
-    return (c:cs)
 
 -- |Parser for parsing one item if it satisfies predicate
 sat :: (Char -> Bool) -> Parser Char
@@ -129,6 +122,3 @@ split c = do
     char c
     r <- rest 
     return (h,r)
-
-argWords :: Parser [String]
-argWords = Parser(\cs -> Just (words cs, ""))
