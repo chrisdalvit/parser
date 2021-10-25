@@ -1,11 +1,9 @@
 module TermParser (Term, Rule, stringsToTRS, stringToTerm, parseTerm) where
 
-import Parser (Parser, parse, char, item, items, string, comma, sep, sat, token, parseUntil, spaces, many1)
-import Term ( Rule(..), Term(..), vars, subset, funcArity)
+import Parser (Parser, parse, char, string, comma, sep, sat, token, many1)
+import Term ( Rule(..), Term(..), validTRS, validRule)
 import Control.Applicative (Alternative ((<|>)))
 import Data.Char (isAsciiLower, isAlphaNum)
-import Data.Maybe (mapMaybe)
-import Data.String (String)
 
 -- |Term parser, for either parsing a function or a variable
 parseTerm :: Parser Term
@@ -39,7 +37,7 @@ parseRule = do
 stringToRule :: String -> Maybe Rule
 stringToRule s = case parse parseRule s of
     Nothing -> Nothing
-    Just (Rule lhs rhs, []) -> if subset (vars rhs) (vars lhs) then return $ Rule lhs rhs else Nothing
+    Just (r, []) -> if validRule r then return r else Nothing
     Just (_ , x:xs) -> Nothing
 
 -- |Function that trys to parse a given string into a term
@@ -50,27 +48,10 @@ stringToTerm s = case parse parseTerm s of
     Just(x, []) -> return x
 
 -- |Funtcion that takes a list of strings and returns a list of rules if all strings can be parsed into rules
-parseTRS :: [String] -> Maybe [Rule]
-parseTRS [] = return []
-parseTRS (x:xs) = do
-    r <- stringToRule x
-    rs <- parseTRS xs
-    return (r:rs)
-
 stringsToTRS :: [String] -> Maybe [Rule]
-stringsToTRS l = case parseTRS l of
-    Nothing -> Nothing
-    Just rs -> if validTRS rs then return rs else Nothing
-
-validTRS :: [Rule] -> Bool
-validTRS [] = True
-validTRS rs = checkArity arities
-    where
-        arities = concatMap (\(Rule l r) -> funcArity l ++ funcArity r) rs
-
-checkArity :: [(String, Int)] -> Bool
-checkArity [] = True
-checkArity ((f,a): xs) = case lookup f xs of
-    Nothing -> checkArity xs
-    Just a' -> a == a' && checkArity xs
+stringsToTRS [] = return []
+stringsToTRS (x:xs) = do
+    r <- stringToRule x
+    rs <- stringsToTRS xs
+    if validTRS (r:rs) then return (r:rs) else Nothing 
     

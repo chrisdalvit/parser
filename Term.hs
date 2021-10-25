@@ -1,4 +1,4 @@
-module Term (Term(Func, Var), Rule(Rule), Substitution(..), vars, subset, funcArity) where
+module Term (Term(Func, Var), Rule(Rule), Substitution(..), validRule, validTRS) where
 import Data.Tree (Tree(subForest))
 
 data Term = Func String [Term] | Var String deriving Eq
@@ -21,6 +21,20 @@ instance Show Rule where
 instance Show Substitution where
     show (Substitution []) = ""
     show (Substitution ((var, t):xs) )= var ++ " -> " ++ show t ++ "\n" ++ show (Substitution xs)
+
+validTRS :: [Rule] -> Bool
+validTRS = checkArity . concatMap flattenRule
+    where
+        flattenRule = \(Rule l r) -> funcArity l ++ funcArity r
+
+checkArity :: [(String, Int)] -> Bool
+checkArity [] = True
+checkArity ((f,a): xs) = case lookup f xs of
+    Nothing -> checkArity xs
+    Just a' -> a == a' && checkArity xs
+
+validRule :: Rule -> Bool 
+validRule (Rule lhs rhs) = subset (vars rhs) (vars lhs) 
 
 vars :: Term -> [String]
 vars (Var a) = [a]
