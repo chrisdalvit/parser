@@ -16,6 +16,4 @@ evalInput :: String -> [Assignment] -> IO[Assignment]
 evalInput inp as =
     case stringToCommand inp of
         Nothing -> return as
-        Just cmd -> do
-            fst $ evalCommand as cmd
-            return $ snd $ evalCommand as cmd
+        Just cmd -> evalCommand as cmd
