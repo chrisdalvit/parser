@@ -4,6 +4,7 @@ import Parser(Parser, char, many1, parse, sat, token)
 import Term (Term, Rule)
 import TermParser (parseTerm)
 import Data.Char (isAlphaNum)
+import Data.List (delete)
 
 data Assignable = Term Term | TRS [Rule] deriving Eq
 data Assignment = Assignment String Assignable
@@ -24,6 +25,13 @@ parseAssignment = do
     char '='
     term <- token parseTerm
     return $ Assignment c (Term term)
+
+addAssignment :: Assignment -> [Assignment] -> [Assignment]
+addAssignment a as
+    | a `elem` as = a:as'
+    | otherwise = a:as
+    where
+        as' = delete a as
 
 stringToAssignment :: String -> Maybe Assignment
 stringToAssignment s = case parse parseAssignment s of

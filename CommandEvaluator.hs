@@ -4,8 +4,7 @@ import Term (Term, Substitution, Rule)
 import TermParser ( stringToTerm, stringsToTRS )
 import TermEvaluator  (evalTerm)
 import CommandParser(Command(..), CommandSymbol (CommandSymbol), Args (Args), stringToCommand)
-import Input (stringToAssignment, Assignment(..), Assignable(..))
-import Data.List (delete)
+import Input (stringToAssignment, addAssignment, Assignment(..), Assignable(..))
 
 evalCommand :: [Assignment] -> Command -> IO [Assignment]
 evalCommand as (Command (CommandSymbol "term") args) = evalTermCommand as args
@@ -22,14 +21,6 @@ evalCommand as (Command (CommandSymbol "p") args) = do
 evalCommand as _ = do
     print "Non-valid command"
     return as
-
-
-addAssignment :: Assignment -> [Assignment] -> [Assignment]
-addAssignment a as
-    | a `elem` as = a:as'
-    | otherwise = a:as
-    where
-        as' = delete a as
 
 evalAssignmentCommand :: [Assignment] -> Args -> IO [Assignment]
 evalAssignmentCommand as (Args [x]) = do
