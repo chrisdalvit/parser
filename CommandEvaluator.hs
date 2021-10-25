@@ -18,7 +18,7 @@ evalCommand as (Command (CommandSymbol "p") args) = do
     print as
     return as
 evalCommand as _ = do
-    print "Non-valid command"
+    putStrLn " -- Non-valid command -- "
     return as
 
 readTRSFile :: [Assignment] -> Args -> IO [Assignment]
@@ -30,25 +30,25 @@ readTRSFile as (Args [f, n]) = do
     file <- readFile f
     case stringsToTRS $ lines file of
         Nothing -> do
-            print "Error: incorrect TRS"
+            putStrLn " -- Error: incorrect TRS -- "
             return as 
         Just trs -> do
             return $ addAssignment (Assignment n (TRS trs)) as
 readTRSFile as _ = do
-    print "Error: wrong number of arguments"
+    putStrLn " -- Error: wrong number of arguments -- "
     return as
 
 evalAssignmentCommand :: [Assignment] -> Args -> IO [Assignment]
 evalAssignmentCommand as (Args [x]) = do
     case stringToAssignment x of
         Nothing -> do
-            print "Error when parsing assignment"
+            putStrLn " -- Error when parsing assignment -- "
             return as
         Just a -> do 
             print a
             return $ addAssignment a as
 evalAssignmentCommand as _ = do 
-    print "Wrong number of arguments"
+    putStrLn " -- Wrong number of arguments -- "
     return as
 
 evalTermCommand :: [Assignment] -> Args -> IO [Assignment]
@@ -57,37 +57,39 @@ evalTermCommand as (Args [x]) = do
     return as
 evalTermCommand as (Args [n, t]) = case stringToTerm t of
     Nothing -> do 
-        print "No valid term"
+        putStrLn " -- No valid term -- "
         return as
     Just t -> do
         print t
         return $ addAssignment (Assignment n (Term t)) as
 evalTermCommand as _ = do 
-    print "Error: not enough arguments"
+    putStrLn " -- Error: not enough arguments -- "
     return as
 
 evalTRSCommand :: [Assignment] -> Args -> IO [Assignment]
 evalTRSCommand as (Args []) = do
     trs <- readTRS
     case trs of
-        [] -> print "Non-valid TRS"
-        _ -> print $ "TRS: " ++ show trs
+        [] -> putStrLn " -- Non-valid TRS -- "
+        _ -> putStrLn $ "TRS: " ++ show trs
     return as
 evalTRSCommand as (Args [n]) = do
     trs <- readTRS
     case trs of
-        [] -> print "Non-valid TRS"
-        _ -> print $ "TRS: " ++ show trs
+        [] -> putStrLn " -- Non-valid TRS -- "
+        _ -> putStrLn $ "TRS: " ++ show trs
     return $ addAssignment (Assignment n (TRS trs)) as
 evalTRSCommand as _ = do
-    print "Error: wrong number of arguments"
+    putStrLn " -- Error: wrong number of arguments -- "
     return as
 
 evalFileCommand :: Args -> IO()
 evalFileCommand (Args [fn]) = do
     file <- readFile fn
-    print $ evalFile (splitOn "" (lines file))
-evalFileCommand _ = print "Error: too many or to few arguments"
+    case evalFile (splitOn "" (lines file)) of
+        Nothing -> putStrLn " -- Error in file evaluation -- "
+        Just res -> putStrLn $ "Result: " ++ show res
+evalFileCommand _ = putStrLn " -- Error: too many or to few arguments -- "
 
 evalFile :: [[String]] -> Maybe Term
 evalFile [rs, [t]] = do
