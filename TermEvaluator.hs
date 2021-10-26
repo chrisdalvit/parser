@@ -1,4 +1,4 @@
-module TermEvaluator (matchRule, evalTerm) where
+module TermEvaluator (matchRule, evalTerm, applySubst) where
 
 import Term ( Rule (..), Term(..),  Substitution(..))
 import Data.Maybe (fromMaybe)
