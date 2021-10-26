@@ -1,9 +1,9 @@
-module CommandEvaluator (evalCommand) where
+module Command.CommandEvaluator (evalCommand) where
 
 import Term.Term (Term, Substitution, Rule)
 import Term.TermParser ( stringToTerm, stringsToTRS )
 import Term.TermEvaluator  (evalTerm)
-import CommandParser(Command(..), CommandSymbol (CommandSymbol), Args (Args), stringToCommand)
+import Command.CommandParser(Command(..), CommandSymbol (CommandSymbol), Args (Args), stringToCommand)
 import Input (stringToAssignment, addAssignment, Assignment(..), Assignable(..))
 
 evalCommand :: [Assignment] -> Command -> IO [Assignment]

@@ -1,4 +1,4 @@
-module CommandParser (Command(..), CommandSymbol(..), Args(..), stringToCommand) where
+module Command.CommandParser (Command(..), CommandSymbol(..), Args(..), stringToCommand) where
 
 import Parser (Parser(..), char, spaces, parse, split)
 
