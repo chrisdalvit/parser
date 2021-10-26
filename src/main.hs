@@ -1,7 +1,7 @@
 import Data.Maybe (mapMaybe)
 import Command.CommandEvaluator (evalCommand)
 import Command.CommandParser ( stringToCommand )
-import Assignment ( Assignment(..) )
+import Utils.Assignment ( Assignment(..) )
 
 main :: IO()
 main = evalLoop []

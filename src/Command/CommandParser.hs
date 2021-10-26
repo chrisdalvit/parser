@@ -1,6 +1,6 @@
 module Command.CommandParser (Command(..), CommandSymbol(..), Args(..), stringToCommand) where
 
-import Parser (Parser(..), char, spaces, parse, split)
+import Utils.Parser (Parser(..), char, spaces, parse, split)
 
 newtype CommandSymbol = CommandSymbol String deriving Show
 newtype Args = Args [String] deriving Show
