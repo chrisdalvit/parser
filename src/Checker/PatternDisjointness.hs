@@ -1,4 +1,4 @@
-module PatternDisjointness where
+module Checker.PatternDisjointness where
 import Term.Term (Rule(..), Term(..), vars, Substitution(..))
 
 import Term.TermParser ( stringToTerm, stringsToTRS )

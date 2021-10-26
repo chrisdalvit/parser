@@ -4,7 +4,8 @@ import Term.Term (Term, Substitution, Rule)
 import Term.TermParser ( stringToTerm, stringsToTRS )
 import Term.TermEvaluator  (evalTerm)
 import Command.CommandParser(Command(..), CommandSymbol (CommandSymbol), Args (Args), stringToCommand)
-import Utils.Assignment (stringToAssignment, addAssignment, Assignment(..), Assignable(..))
+import Utils.Assignment (stringToAssignment, findAssignment, addAssignment, Assignment(..), Assignable(..))
+import Checker.PatternDisjointness (isPatternDisjoint)
 
 evalCommand :: [Assignment] -> Command -> IO [Assignment]
 evalCommand as (Command (CommandSymbol "term") args) = evalTermCommand as args
@@ -13,12 +14,24 @@ evalCommand as (Command (CommandSymbol "trsfile") args ) = readTRSFile as args
 evalCommand as (Command (CommandSymbol "evalfile") args) = do
     evalFileCommand args
     return as
+evalCommand as (Command (CommandSymbol "pd") args) = evalPatternDisjointness as args
 evalCommand as (Command (CommandSymbol "=") args) = evalAssignmentCommand as args
 evalCommand as (Command (CommandSymbol "p") args) = do
     print as
     return as
 evalCommand as _ = do
     putStrLn " -- Non-valid command -- "
+    return as
+
+evalPatternDisjointness :: [Assignment] -> Args -> IO [Assignment]
+evalPatternDisjointness as (Args [x]) = do
+    case findAssignment x as of
+        Nothing -> putStrLn $ " -- Error: no value for " ++ x ++ " -- ″"
+        Just (Term t) -> putStrLn " -- Error: provide trs not term -- "
+        Just (TRS trs) -> print $ isPatternDisjoint trs 
+    return as
+evalPatternDisjointness as _  = do
+    putStrLn " -- Error: wrong number of arguments -- "
     return as
 
 readTRSFile :: [Assignment] -> Args -> IO [Assignment]

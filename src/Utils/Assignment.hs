@@ -33,6 +33,12 @@ addAssignment a as
     where
         as' = delete a as
 
+findAssignment :: String -> [Assignment] -> Maybe Assignable
+findAssignment s [] = Nothing 
+findAssignment s (Assignment l r: xs)
+    | s == l = return r
+    | otherwise = findAssignment s xs
+
 stringToAssignment :: String -> Maybe Assignment
 stringToAssignment s = case parse parseAssignment s of
     Nothing -> Nothing
