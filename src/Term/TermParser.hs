@@ -1,7 +1,7 @@
-module TermParser (Term, Rule, stringsToTRS, stringToTerm, parseTerm) where
+module Term.TermParser (Term, Rule, stringsToTRS, stringToTerm, parseTerm) where
 
 import Parser (Parser, parse, char, string, comma, sep, sat, token, many1)
-import Term ( Rule(..), Term(..), validTRS, validRule)
+import Term.Term ( Rule(..), Term(..), validTRS, validRule)
 import Control.Applicative (Alternative ((<|>)))
 import Data.Char (isAsciiLower, isAlphaNum)
 

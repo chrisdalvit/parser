@@ -1,4 +1,4 @@
-module Term (Term(Func, Var), Rule(Rule), Substitution(..), validRule, validTRS, vars) where
+module Term.Term (Term(Func, Var), Rule(Rule), Substitution(..), validRule, validTRS, vars) where
 
 data Term = Func String [Term] | Var String deriving Eq
 data Rule = Rule Term Term deriving Eq

@@ -1,8 +1,8 @@
 module Input where
 
 import Parser(Parser, char, many1, parse, sat, token)
-import Term (Term, Rule)
-import TermParser (parseTerm)
+import Term.Term (Term, Rule)
+import Term.TermParser (parseTerm)
 import Data.Char (isAlphaNum)
 import Data.List (delete)
 

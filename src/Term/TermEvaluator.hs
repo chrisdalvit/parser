@@ -1,6 +1,6 @@
-module TermEvaluator (matchRule, evalTerm, applySubst) where
+module Term.TermEvaluator (matchRule, evalTerm, applySubst) where
 
-import Term ( Rule (..), Term(..),  Substitution(..))
+import Term.Term ( Rule (..), Term(..),  Substitution(..))
 import Data.Maybe (fromMaybe)
 
 applySubst :: Substitution -> Term -> Term

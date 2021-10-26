@@ -1,8 +1,8 @@
 module PatternDisjointness where
-import Term (Rule(..), Term(..), vars, Substitution(..))
+import Term.Term (Rule(..), Term(..), vars, Substitution(..))
 
-import TermParser ( stringToTerm, stringsToTRS )
-import TermEvaluator (applySubst)
+import Term.TermParser ( stringToTerm, stringsToTRS )
+import Term.TermEvaluator (applySubst)
 
 isPatternDisjoint :: [Rule] -> Bool
 isPatternDisjoint = applyUnification .lhsCombinations . fst . renameTerms 0 . lhs
