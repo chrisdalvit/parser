@@ -48,10 +48,3 @@ renameTerms i (x:xs) = (t' : ts', i'')
     where
         (t', i') = renameTerm x i
         (ts', i'') = renameTerms i' xs
-
-test :: IO ()
-test = do
-    file <- readFile "trs.txt"
-    case stringsToTRS $ lines file of
-        Nothing -> print "nix"
-        Just trs -> print $ isPatternDisjoint trs
