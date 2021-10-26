@@ -4,7 +4,7 @@ import Term.Term (Term, Substitution, Rule)
 import Term.TermParser ( stringToTerm, stringsToTRS )
 import Term.TermEvaluator  (evalTerm)
 import Command.CommandParser(Command(..), CommandSymbol (CommandSymbol), Args (Args), stringToCommand)
-import Input (stringToAssignment, addAssignment, Assignment(..), Assignable(..))
+import Assignment (stringToAssignment, addAssignment, Assignment(..), Assignable(..))
 
 evalCommand :: [Assignment] -> Command -> IO [Assignment]
 evalCommand as (Command (CommandSymbol "term") args) = evalTermCommand as args

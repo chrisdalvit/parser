@@ -1,4 +1,4 @@
-module Input where
+module Assignment where
 
 import Parser(Parser, char, many1, parse, sat, token)
 import Term.Term (Term, Rule)
