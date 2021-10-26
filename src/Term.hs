@@ -1,5 +1,4 @@
 module Term (Term(Func, Var), Rule(Rule), Substitution(..), validRule, validTRS, vars) where
-import Data.Bifunctor (Bifunctor (bimap))
 
 data Term = Func String [Term] | Var String deriving Eq
 data Rule = Rule Term Term deriving Eq
