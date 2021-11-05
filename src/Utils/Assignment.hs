@@ -1,17 +1,19 @@
 module Utils.Assignment where
 
 import Utils.Parser(Parser, char, many1, parse, sat, token)
+import Utils.Precedence (Precedence(..))
 import Term.Term (Term, Rule)
 import Term.TermParser (parseTerm)
 import Data.Char (isAlphaNum)
 import Data.List (delete)
 
-data Assignable = Term Term | TRS [Rule] deriving Eq
+data Assignable = Term Term | TRS [Rule] | Precedence Precedence deriving Eq
 data Assignment = Assignment String Assignable
 
 instance Show Assignable where
     show (Term t) = show "Term: " ++ show t
     show (TRS trs) = "TRS: [" ++ concatMap (\r -> "\n\t" ++ show r ++ ", ") trs  ++ "\n]"
+    show (Precedence p) = show p
 
 instance Eq Assignment where
     (Assignment r _) == (Assignment r' _) = r == r'
