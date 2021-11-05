@@ -28,6 +28,9 @@ evalCommand as cmd
     | name == "evalfile" = do
         evalFileCommand cmdArgs
         return as
+    | name == "printvars" = do
+        mapM_ print as
+        return as
     | name == "q" = exitSuccess
     | otherwise = do
         putStrLn " -- Non-valid command -- "
@@ -101,7 +104,7 @@ evalTermCommand as (Args [n, t]) = case stringToTerm t of
         return $ addAssignment (Assignment n (Term t)) as
 evalTermCommand as _ = do
         putStrLn " -- Usage -- "
-        putStrLn " :term TERM \n"
+        putStrLn " :term VAR_NAME TERM \n"
         return as
 
 evalTRSCommand :: [Assignment] -> Args -> IO [Assignment]

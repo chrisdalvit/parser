@@ -11,7 +11,7 @@ data Assignable = Term Term | TRS [Rule] | Precedence Precedence deriving Eq
 data Assignment = Assignment String Assignable
 
 instance Show Assignable where
-    show (Term t) = show "Term: " ++ show t
+    show (Term t) = "Term: " ++ show t
     show (TRS trs) = "TRS: [" ++ concatMap (\r -> "\n\t" ++ show r ++ ", ") trs  ++ "\n]"
     show (Precedence p) = show p
 
@@ -19,7 +19,7 @@ instance Eq Assignment where
     (Assignment r _) == (Assignment r' _) = r == r'
 
 instance Show Assignment where
-    show (Assignment x y) = x ++ "=" ++ show y 
+    show (Assignment x y) = x ++ " = " ++ show y 
 
 parseAssignment :: Parser Assignment
 parseAssignment = do
