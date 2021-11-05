@@ -3,7 +3,6 @@ module Utils.Assignment where
 import Utils.Parser(Parser, char, many1, parse, sat, token)
 import Utils.Precedence (Precedence(..))
 import Term.Term (Term, Rule)
-import Term.TermParser (parseTerm)
 import Data.Char (isAlphaNum)
 import Data.List (delete)
 
@@ -21,13 +20,6 @@ instance Eq Assignment where
 instance Show Assignment where
     show (Assignment x y) = x ++ " = " ++ show y 
 
-parseAssignment :: Parser Assignment
-parseAssignment = do
-    c <- token $ many1 (sat isAlphaNum)
-    char '='
-    term <- token parseTerm
-    return $ Assignment c (Term term)
-
 addAssignment :: Assignment -> [Assignment] -> [Assignment]
 addAssignment a as
     | a `elem` as = a:as'
@@ -40,9 +32,3 @@ findAssignment s [] = Nothing
 findAssignment s (Assignment l r: xs)
     | s == l = return r
     | otherwise = findAssignment s xs
-
-stringToAssignment :: String -> Maybe Assignment
-stringToAssignment s = case parse parseAssignment s of
-    Nothing -> Nothing
-    Just (a, []) -> return a
-    Just (a, _) -> Nothing
