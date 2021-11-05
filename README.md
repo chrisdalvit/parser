@@ -47,9 +47,16 @@ Commands begin with `:` followed by the command name and space separated argumen
     Func "f42" [ Var "c", Func "g" [Var "y"] ]
     ````
 
-* Rules contain a left- and righthandside. The lhs has to be a `Func` and the rhs is a `Term`. All variables in the rhs must also occur in the lhs.
+* Rules contain a left- and righthandside. The lhs has to be a `Func` and the rhs is a `Term`. All variables in the rhs must also occur in the lhs. Example
+    ````
+    f42(c,g(y)) -> y
+    ````
 
 * TRS is a list of rules, with additional checking e.g. that no conflicting function arities occur between the rules.
+    ````
+    f42(c,g(y)) -> y
+    f43(c,g(y)) -> c
+    ````
 
 
 [1]:http://www.cs.nott.ac.uk/~pszgmh/pearl.pdf
