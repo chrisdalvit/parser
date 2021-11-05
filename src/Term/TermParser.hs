@@ -1,4 +1,4 @@
-module Term.TermParser (Term, Rule, stringsToTRS, stringToTerm) where
+module Term.TermParser (Term, Rule, stringsToTRS, stringToTerm, stringToRule) where
 
 import Utils.Parser (Parser, parse, char, string, comma, sep, sat, token, many1)
 import Term.Term ( Rule(..), Term(..), validTRS, validRule)
