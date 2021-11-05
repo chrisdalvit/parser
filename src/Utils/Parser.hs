@@ -1,4 +1,4 @@
-module Utils.Parser (Parser, parse, item, char, string, comma, sep, sat, token, space, many1, many, spaces, split) where
+module Utils.Parser where
 
 import Control.Applicative (Alternative)
 import GHC.Base (Alternative(empty, (<|>)))
