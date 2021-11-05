@@ -9,6 +9,7 @@ import Checker.PatternDisjointness (isPatternDisjoint)
 import Checker.LPO (isLPOTerminating)
 import Utils.Precedence (argsToPrecedence, Precedence(..))
 import Text.Read (prec)
+import System.Exit (exitSuccess)
 
 evalCommand :: [Assignment] -> Command -> IO [Assignment]
 evalCommand as (Command (CommandSymbol "term") args) = evalTermCommand as args
@@ -21,6 +22,7 @@ evalCommand as (Command (CommandSymbol "evalfile") args) = do
     return as
 evalCommand as (Command (CommandSymbol "pd") args) = evalPatternDisjointness as args
 evalCommand as (Command (CommandSymbol "=") args) = evalAssignmentCommand as args
+evalCommand as (Command (CommandSymbol "q") args) = exitSuccess
 evalCommand as _ = do
     putStrLn " -- Non-valid command -- "
     return as
