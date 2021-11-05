@@ -6,29 +6,57 @@ import Term.TermEvaluator  (evalTerm)
 import Command.CommandParser(Command(..), CommandSymbol (CommandSymbol), Args (Args), stringToCommand)
 import Utils.Assignment (stringToAssignment, findAssignment, addAssignment, Assignment(..), Assignable(..))
 import Checker.PatternDisjointness (isPatternDisjoint)
+import Checker.LPO (isLPOTerminating)
+import Utils.Precedence (argsToPrecedence, Precedence(..))
+import Text.Read (prec)
 
 evalCommand :: [Assignment] -> Command -> IO [Assignment]
 evalCommand as (Command (CommandSymbol "term") args) = evalTermCommand as args
 evalCommand as (Command (CommandSymbol "trs") args ) = evalTRSCommand as args
 evalCommand as (Command (CommandSymbol "trsfile") args ) = readTRSFile as args
+evalCommand as (Command (CommandSymbol "lpo") args ) = evalLPO as args
+evalCommand as (Command (CommandSymbol "pred") args ) = evalPrecedenceCommand as args
 evalCommand as (Command (CommandSymbol "evalfile") args) = do
     evalFileCommand args
     return as
 evalCommand as (Command (CommandSymbol "pd") args) = evalPatternDisjointness as args
 evalCommand as (Command (CommandSymbol "=") args) = evalAssignmentCommand as args
-evalCommand as (Command (CommandSymbol "p") args) = do
-    print as
-    return as
 evalCommand as _ = do
     putStrLn " -- Non-valid command -- "
+    return as
+
+evalPrecedenceCommand :: [Assignment] -> Args -> IO [Assignment]
+evalPrecedenceCommand as (Args (n:a:args)) = do 
+    case argsToPrecedence (a:args) of
+      Nothing -> do
+          putStrLn " -- Error: parsing precedence -- ″"
+          return as
+      Just prece -> do 
+        return $ addAssignment (Assignment n (Precedence prece)) as
+evalPrecedenceCommand as _ = do 
+    putStrLn " -- Error: wrong number of arguments -- "
+    return as
+
+evalLPO :: [Assignment] -> Args -> IO [Assignment]
+evalLPO as (Args [trs, pred]) = do
+    case findAssignment trs as of
+        Nothing -> putStrLn $ " -- Error: no trs for " ++ trs ++ " -- ″"
+        Just (TRS trs) -> case findAssignment pred as of
+            Nothing -> putStrLn $ " -- Error: no precedence"
+            Just (Precedence p) -> print $ isLPOTerminating trs p
+            Just _ -> putStrLn " -- Error: provide precedence -- "
+        Just _ -> putStrLn " -- Error: provide trs -- "
+    return as
+evalLPO as _ = do
+    putStrLn " -- Error: wrong number of arguments -- "
     return as
 
 evalPatternDisjointness :: [Assignment] -> Args -> IO [Assignment]
 evalPatternDisjointness as (Args [x]) = do
     case findAssignment x as of
         Nothing -> putStrLn $ " -- Error: no value for " ++ x ++ " -- ″"
-        Just (Term t) -> putStrLn " -- Error: provide trs not term -- "
         Just (TRS trs) -> print $ isPatternDisjoint trs 
+        Just _ -> putStrLn " -- Error: provide trs -- "
     return as
 evalPatternDisjointness as _  = do
     putStrLn " -- Error: wrong number of arguments -- "
