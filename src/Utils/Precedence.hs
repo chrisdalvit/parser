@@ -6,7 +6,7 @@ import GHC.Unicode (isAlphaNum)
 newtype Precedence = Pred [(String, String)] deriving Eq
 
 instance Show Precedence where
-    show (Pred []) = ""
+    show (Pred []) = "[]"
     show (Pred [(x,y)]) = x ++ " > " ++ y
     show (Pred ((x,y):xs)) = x ++ " > " ++ y ++ ", " ++ show (Pred xs)
 
@@ -20,7 +20,7 @@ parsePrecedencePart = do
 
 parsePrecedence :: Parser Precedence
 parsePrecedence = do
-    p <- sep1 parsePrecedencePart space
+    p <- sep parsePrecedencePart space
     return $ Pred p
 
 stringToPrecedence :: String -> Maybe Precedence

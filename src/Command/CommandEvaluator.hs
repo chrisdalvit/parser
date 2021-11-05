@@ -40,8 +40,8 @@ evalCommand as cmd
         cmdArgs = args cmd
 
 evalPrecedenceCommand :: [Assignment] -> Args -> IO [Assignment]
-evalPrecedenceCommand as (Args (n:a:args)) = do
-    case argsToPrecedence (a:args) of
+evalPrecedenceCommand as (Args (n:args)) = do
+    case argsToPrecedence args of
       Nothing -> do
           putStrLn " -- Error: parsing precedence -- ″"
           return as
