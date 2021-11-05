@@ -3,7 +3,12 @@ module Utils.Precedence where
 import Utils.Parser
 import GHC.Unicode (isAlphaNum)
 
-newtype Precedence = Pred [(String, String)] deriving (Eq, Show)
+newtype Precedence = Pred [(String, String)] deriving Eq
+
+instance Show Precedence where
+    show (Pred []) = ""
+    show (Pred [(x,y)]) = x ++ " > " ++ y
+    show (Pred ((x,y):xs)) = x ++ " > " ++ y ++ ", " ++ show (Pred xs)
 
 parsePrecedencePart :: Parser (String, String)
 parsePrecedencePart = do
