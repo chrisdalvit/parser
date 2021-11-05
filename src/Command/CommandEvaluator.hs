@@ -92,13 +92,6 @@ readTRSFile as _ = do
         return as
 
 evalTermCommand :: [Assignment] -> Args -> IO [Assignment]
-evalTermCommand as (Args [t]) = case stringToTerm t of
-    Nothing -> do
-        putStrLn " -- No valid term -- "
-        return as
-    Just t -> do
-        print t
-        return as
 evalTermCommand as (Args [n, t]) = case stringToTerm t of
     Nothing -> do
         putStrLn " -- No valid term -- "
