@@ -110,12 +110,6 @@ evalTermCommand as _ = do
     return as
 
 evalTRSCommand :: [Assignment] -> Args -> IO [Assignment]
-evalTRSCommand as (Args []) = do
-    trs <- readTRS
-    case trs of
-        [] -> putStrLn " -- Non-valid TRS -- "
-        _ -> putStrLn $ "TRS: " ++ show trs
-    return as
 evalTRSCommand as (Args [n]) = do
     trs <- readTRS
     case trs of
