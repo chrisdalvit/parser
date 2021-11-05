@@ -100,7 +100,6 @@ evalTermCommand as (Args [n, t]) = case stringToTerm t of
         putStrLn " -- No valid term -- "
         return as
     Just t -> do
-        print t
         return $ addAssignment (Assignment n (Term t)) as
 evalTermCommand as _ = do
         putStrLn " -- Usage -- "
